@@ -28,3 +28,4 @@ npm run preview   # serves the production build locally
 - `src/components/sections/` — experience, work, contact.
 - `src/pages/DcfPage.tsx` — the full `/dcf` instrument.
 
+
