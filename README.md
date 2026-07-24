@@ -27,3 +27,4 @@ npm run preview   # serves the production build locally
 - `src/components/background/ContourField.tsx` — the WebGL ambient layer.
 - `src/components/sections/` — experience, work, contact.
 - `src/pages/DcfPage.tsx` — the full `/dcf` instrument.
+
