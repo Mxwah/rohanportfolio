@@ -1,0 +1,39 @@
+/* Single source of truth for every visual constant. Mirrors DESIGN.md.
+   Monochrome, neutral (no warm cast), dark. The living data is the color. */
+:root {
+  /* Surfaces */
+  --bg: #0b0b0d;
+  --bg-raised: #101012;
+  --bg-card: #151517;
+
+  /* Ink (light-on-dark). Secondary and muted are deliberately bright: they sit
+     over a moving particle field, so they carry extra contrast headroom. */
+  --text: #f3f3f1;
+  --text-secondary: #b8b8b4;
+  --text-muted: #8c8c88;
+
+  /* Lines */
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Type */
+  --font-display: "Schibsted Grotesk", system-ui, sans-serif;
+  --font-sans: "Schibsted Grotesk", system-ui, sans-serif;
+  --font-mono: "Spline Sans Mono", ui-monospace, monospace;
+
+  /* Motion - Emil-grounded easing/duration pairs (see DESIGN.md).
+     Stronger than the CSS defaults; never ease-in for UI. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-inout: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-fast: 160ms;
+  --dur-base: 300ms;
+  --dur-slow: 560ms;
+  --dur-reveal: 900ms;
+
+  /* Z-index scale (semantic, never arbitrary) */
+  --z-bg: 0;
+  --z-content: 10;
+  --z-nav: 100;
+  --z-cursor: 9000;
+}

@@ -1,0 +1,121 @@
+@import "./styles/tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    /* Light type on dark needs extra breathing room. */
+    line-height: 1.65;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* Display type: grotesque, tight but never cramped (>= -0.04em floor). */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  p {
+    text-wrap: pretty;
+    max-width: var(--tw-prose, 68ch);
+  }
+
+  /* Every number on the site is tabular data type. */
+  .tnum {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--text);
+    color: var(--bg);
+  }
+}
+
+@layer components {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Film grain - a tiny inline SVG noise tile, NOT feTurbulence-as-decoration.
+     Fixed, faint, non-interactive. Kept subtle on purpose. */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-content);
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: screen;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 140px 140px;
+  }
+
+  /* When the custom cursor is active we hide the native one (fine pointers
+     only, and only after the component mounts - so it's never lost). */
+  body.has-custom-cursor,
+  body.has-custom-cursor a,
+  body.has-custom-cursor button,
+  body.has-custom-cursor [data-cursor] {
+    cursor: none;
+  }
+
+  /* Reveal: content is visible by DEFAULT. When JS marks a section as
+     armed-then-shown, it animates in. If JS never runs, nothing is hidden. */
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+  [data-reveal="armed"] {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  [data-reveal="shown"] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--dur-slow) var(--ease-out),
+      transform var(--dur-slow) var(--ease-out);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grain {
+    display: none;
+  }
+  [data-reveal="armed"] {
+    opacity: 1;
+    transform: none;
+  }
+}
