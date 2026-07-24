@@ -150,7 +150,12 @@ export function FlowField() {
       return; // No WebGL: the flat background stands on its own.
     }
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    // Mobile GPUs pay for both the particle count and the bloom pass's own
+    // resolution (a multi-pass blur chain, the single most expensive thing
+    // in this scene); capping DPR harder there is a bigger win than it looks
+    // since fill-rate cost scales with the square of pixel ratio.
+    const isMobile = window.innerWidth < 768;
+    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.5);
     renderer.setPixelRatio(dpr);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(BG, 1);
@@ -163,7 +168,7 @@ export function FlowField() {
     camera.lookAt(0, 0, -3);
 
     // Stateless particles: seeds in, positions out (vertex shader).
-    const count = window.innerWidth < 768 ? 18000 : 42000;
+    const count = isMobile ? 9000 : 42000;
     const positions = new Float32Array(count * 3); // required by three, unused by the shader
     const seeds = new Float32Array(count);
     const seeds2 = new Float32Array(count);
@@ -204,13 +209,16 @@ export function FlowField() {
 
     scene.add(new THREE.Points(geometry, material));
 
-    // Bloom at half resolution: embers halo, dust stays quiet.
+    // Bloom resolution: half on desktop, a quarter on mobile (the bloom pass's
+    // own multi-pass blur chain is the single most expensive part of this
+    // scene, independent of the particle count above it).
+    const bloomDiv = isMobile ? 4 : 2;
     const composer = new EffectComposer(renderer);
     composer.setPixelRatio(dpr);
     composer.setSize(window.innerWidth, window.innerHeight);
     composer.addPass(new RenderPass(scene, camera));
     const bloom = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2),
+      new THREE.Vector2(window.innerWidth / bloomDiv, window.innerHeight / bloomDiv),
       0.9,
       0.65,
       0.12,

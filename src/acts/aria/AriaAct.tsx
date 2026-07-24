@@ -92,10 +92,17 @@ export function AriaAct() {
   const [load, setLoad] = useState(false);
   const [onScreen, setOnScreen] = useState(false);
   const [webgl] = useState(hasWebgl);
+  // A 3.6-screen scroll-jacked pin driving a live three.js scene is a fight
+  // with the phone's GPU and the visitor's thumb at the same time. Below md,
+  // and under reduced motion, skip the pin entirely and show the settled
+  // composition as a plain section (same contract as every other act).
+  const [staticLayout] = useState(
+    () => reduced || (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches),
+  );
 
   // Mount the heavy scene well before the act is visible.
   useEffect(() => {
-    if (reduced) {
+    if (staticLayout) {
       setLoad(true);
       return;
     }
@@ -112,10 +119,10 @@ export function AriaAct() {
     );
     io.observe(section);
     return () => io.disconnect();
-  }, [reduced]);
+  }, [staticLayout]);
 
   useLayoutEffect(() => {
-    if (reduced) return;
+    if (staticLayout) return;
     const section = sectionRef.current;
     const stage = stageRef.current;
     const iris = irisRef.current;
@@ -172,9 +179,9 @@ export function AriaAct() {
     }, section);
 
     return () => ctx.revert();
-  }, [reduced]);
+  }, [staticLayout]);
 
-  if (reduced) {
+  if (staticLayout) {
     return (
       <section
         id="aria"
