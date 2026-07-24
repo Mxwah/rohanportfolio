@@ -61,20 +61,38 @@ On the preview URL, confirm:
 - The macro strip shows live numbers (if you did Step 3).
 - Open it on your phone.
 
-## Step 5 — Domain cutover (LAST; this replaces the current live site)
+## Step 5 — Domain cutover, via Cloudflare DNS (LAST; this replaces the current live site)
 
 The old TanStack/Lovable site currently serves rohandhruv.com. Only do this once
 the preview above is right, because this is the step that flips the public site.
+This assumes your domain's nameservers already point at Cloudflare (the old
+site was built on Cloudflare Workers, so this is almost certainly already true
+— check by logging into https://dash.cloudflare.com and seeing if the domain
+is listed). **You do not move DNS anywhere.** Vercel hosts the app; Cloudflare
+stays the DNS host exactly as it is today. You're just adding one record.
 
 1. `vercel --prod` (or merge to your main branch) to promote the preview to the
    project's production deployment.
-2. Vercel dashboard -> project -> Settings -> Domains -> add `rohandhruv.com`
-   and `www.rohandhruv.com`.
-3. Vercel shows the exact DNS records to set. Update them at whoever manages the
-   domain's DNS today (the old site's host / registrar). This is the only
-   irreversible-ish step; DNS can take up to a few hours to propagate.
-4. Keep the old deployment reachable somewhere until DNS fully propagates, in
-   case you need to point back.
+2. Vercel dashboard -> your project -> Settings -> Domains -> add
+   `rohandhruv.com` and `www.rohandhruv.com`.
+3. Vercel will show a status like "Invalid Configuration" and give you the
+   exact record to add — normally:
+   - `rohandhruv.com` (apex) -> **A record** -> `76.76.21.21`
+   - `www.rohandhruv.com` -> **CNAME record** -> `cname.vercel-dns.com`
+   Vercel's UI always shows the current correct values for your project; use
+   those over the ones above if they differ.
+4. In the Cloudflare dashboard: select the domain -> **DNS** -> **Records** ->
+   **Add record**. Enter the type/name/value from Step 3. **Important:** click
+   the orange cloud icon next to the new record so it turns grey ("DNS only").
+   Leaving it orange ("Proxied") routes traffic through Cloudflare's proxy,
+   which can break Vercel's SSL certificate issuance — DNS-only avoids that.
+5. Delete or edit whatever record currently points `rohandhruv.com` at the old
+   site, so the two don't conflict.
+6. Wait a few minutes to a few hours for propagation, then reload
+   rohandhruv.com. Vercel's Domains page will flip from "Invalid
+   Configuration" to a green checkmark once it sees the record.
+7. Keep the old deployment reachable somewhere until you're sure the cutover
+   is good, in case you need to point back.
 
 ---
 
