@@ -185,9 +185,19 @@ export function AriaAct() {
     return (
       <section
         id="aria"
-        className="mx-auto flex min-h-[100svh] max-w-shell flex-col items-center justify-center gap-8 px-6 py-24 sm:px-8"
+        className="relative mx-auto flex max-w-shell flex-col items-center gap-8 px-6 py-14 sm:py-24 sm:px-8"
       >
-        <FlatMark className="h-36 w-36" />
+        {/* Same glow the live scene sits in, so the static mark still reads
+            as a deliberate, lit object rather than a flat icon dropped on
+            black. Without this it was easy to scroll past unnoticed. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            background: "radial-gradient(circle, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0) 62%)",
+          }}
+        />
+        <FlatMark className="relative h-44 w-44 sm:h-48 sm:w-48" />
         <AriaInfo scrub={false} />
       </section>
     );

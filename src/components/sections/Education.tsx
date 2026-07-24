@@ -38,7 +38,7 @@ export function Education() {
     <section
       ref={ref}
       id="education"
-      className="relative mx-auto w-full max-w-shell px-6 py-28 sm:px-8"
+      className="relative mx-auto w-full max-w-shell px-6 py-14 sm:py-28 sm:px-8"
       style={{ zIndex: "var(--z-content)" as unknown as number }}
     >
       <Reveal>

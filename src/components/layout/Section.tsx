@@ -14,7 +14,7 @@ export function Section({
   return (
     <section
       id={id}
-      className={`relative mx-auto w-full max-w-shell px-6 py-24 sm:px-8 md:py-32 ${className}`}
+      className={`relative mx-auto w-full max-w-shell px-6 py-14 sm:px-8 sm:py-24 md:py-32 ${className}`}
       style={{ zIndex: "var(--z-content)" as unknown as number }}
     >
       {children}

@@ -31,7 +31,7 @@ export function Leadership() {
   return (
     <section
       id="leadership"
-      className="relative mx-auto w-full max-w-shell px-6 py-24 sm:px-8"
+      className="relative mx-auto w-full max-w-shell px-6 py-14 sm:py-24 sm:px-8"
       style={{ zIndex: "var(--z-content)" as unknown as number }}
     >
       <Reveal>
