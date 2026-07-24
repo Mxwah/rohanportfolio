@@ -34,7 +34,7 @@ export interface Panel {
 // One panel per role: a recruiter's scroll budget is the scarcest resource on
 // the page, so Fleet Team's three metrics share one composed spread.
 const PANELS: Panel[] = [
-  { org: "Fleet Team", role: "Account Management Intern, May 2026 to present", prefix: "$", value: 46, suffix: "K", context: "in client savings across 103 accounts, plus 2,200 accounts mapped into 3 Salesforce tools and 260+ SKUs automated." },
+  { org: "Fleet Team", role: "Account Management Intern, May 2026 to present", prefix: "$", value: 46, suffix: "K", context: "in client savings across 103 accounts, plus 2,200 accounts mapped into 3 Salesforce tools and 240 accounts bridged by a custom SQL query." },
   { org: "Mont Granite", role: "Summer Intern, 2023 and 2025", value: 80, suffix: "%", context: "support-delay reduction from Synthesis GPT, an internal AI assistant I built, used by 10+ staff." },
   { org: "Speranza Resources", role: "Procurement Intern, 6-day Brazil buying trip", value: 52, suffix: "%", context: "bundle price reduction supported in factory negotiations, $13.50 down to $6.50 per square foot." },
   { org: "Validom LLC", role: "Founder, 2020 to 2022", prefix: "$", value: 9, suffix: "K+", context: "revenue in 4 months from a global gaming and apparel brand, 80+ members across 4 continents." },
