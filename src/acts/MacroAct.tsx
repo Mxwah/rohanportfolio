@@ -349,8 +349,8 @@ export function MacroAct() {
     <section ref={sectionRef} id="macro" className="relative">
       <div
         ref={stageRef}
-        className={`relative flex flex-col justify-center px-6 sm:px-8 ${
-          staticLayout ? "min-h-[100svh] py-24" : "h-[100svh] overflow-hidden"
+        className={`relative flex flex-col px-6 sm:px-8 ${
+          staticLayout ? "py-24" : "h-[100svh] justify-center overflow-hidden"
         }`}
         style={{ zIndex: "var(--z-content)" as unknown as number }}
       >
@@ -385,7 +385,10 @@ export function MacroAct() {
             </Beat>
           </div>
 
-          {/* The lesson captions. */}
+          {/* The lesson captions: driven by the pin's scroll phases. Static
+              mode skips straight to unlocked, so drop the box rather than
+              reserve empty height for captions that never fire. */}
+          {!staticLayout && (
           <div className="relative mt-4 h-14 sm:h-16">
             <Beat on={phase === 1} className="absolute inset-0">
               <p className="font-display text-[clamp(1.2rem,2.6vw,1.9rem)] font-bold text-ink">
@@ -403,6 +406,7 @@ export function MacroAct() {
               </p>
             </Beat>
           </div>
+          )}
 
           <div ref={wrapRef} className="w-full">
             <svg
