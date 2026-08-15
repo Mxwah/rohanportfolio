@@ -32,9 +32,9 @@ export interface Panel {
 // Real numbers from the August 2026 resume, concised to the critical fact.
 // Education lives in its own section (src/components/sections/Education.tsx).
 // One panel per role: a recruiter's scroll budget is the scarcest resource on
-// the page, so Fleet Team's five metrics share one composed spread.
+// the page, so each org gets one number and one clause, never a bullet dump.
 const PANELS: Panel[] = [
-  { org: "Fleet Team", role: "Account Management Intern, May–Aug 2026", prefix: "$", value: 61, suffix: "K", context: "in client savings across 103 accounts, alongside 2,200 accounts mapped into 3 automated tools (2 hrs to 20 sec), 240 accounts bridged by a custom SQL query, a preventative-maintenance overhaul cutting costs 16.3%, and a RACI matrix cutting weekly info requests from 20+ to 3." },
+  { org: "Fleet Team", role: "Account Management Intern, May–Aug 2026", prefix: "$", value: 61, suffix: "K", context: "in client savings, plus 2,200 accounts mapped into 3 automated tools, cutting mapping time from 2 hours to 20 seconds." },
   { org: "Mont Granite", role: "Summer Intern, 2023 and 2025", value: 80, suffix: "%", context: "support-delay reduction from Synthesis GPT, an internal AI assistant I built, used by 10+ staff." },
   { org: "Speranza Resources", role: "Procurement Intern, 6-day Brazil buying trip", value: 52, suffix: "%", context: "bundle price reduction supported in factory negotiations, $13.50 down to $6.50 per square foot." },
   { org: "Validom LLC", role: "Founder, 2020 to 2022", prefix: "$", value: 9, suffix: "K+", context: "revenue in 4 months from a global gaming and apparel brand, 80+ members across 4 continents." },
