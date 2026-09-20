@@ -33,7 +33,7 @@ const DETAIL_LINES = [
   "Authored the governing constitution and bylaws.",
   "Designed the brand identity system and built the public website.",
   "Built the 9-month operating plan, including a partnership initiative with the City of Akron and Summit County Mayor's Office.",
-  "Assembled the executive board ahead of the first semester.",
+  "Staffed a 5-person executive board, built ties with four university departments, and brought in industry speakers.",
 ];
 
 // In scrub mode every item carries the aria-line class and GSAP owns its
@@ -50,17 +50,16 @@ function AriaInfo({ scrub }: { scrub: boolean }) {
       <div className={`mt-2 text-[15px] italic text-ink-2 ${cls}`}>the tomorrow of today.</div>
 
       <div className={`mt-7 flex flex-col items-center ${cls}`}>
-        <div className="font-mono text-[12px] text-ink-3">Founder</div>
+        <div className="font-mono text-[12px] text-ink-3">Founder &amp; President</div>
         <p className="mt-2 text-lg text-ink">
           <span
             className="font-display text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-tight"
             style={{ fontVariantNumeric: "tabular-nums" }}
           >
-            19
+            50+
           </span>
           <span className="ml-3 text-ink-2">
-            charter members recruited ahead of the Fall 2026 launch, nearly double the university
-            minimum.
+            members in the first semester, up from 19 charter members at launch.
           </span>
         </p>
       </div>

@@ -1,6 +1,6 @@
 import { Reveal } from "../layout/Reveal";
 
-// Campus selections in the site's own typographic language: the selective
+// Campus leadership in the site's own typographic language: the defining
 // fact set huge in the display face, seated on a baseline rule, with the org
 // and one line of context at the rule's right. Same composition as the
 // experience spreads, smaller scale. ARIA is deliberately absent; it has its
@@ -11,7 +11,7 @@ const ROWS = [
     big: "1",
     small: "of 12",
     org: "University of Akron Ambassadors",
-    detail: "Selected member. 20% acceptance, alumni and stakeholder engagement.",
+    detail: "Ambassador. 20% acceptance, alumni and stakeholder engagement.",
   },
   {
     big: "60",
@@ -25,6 +25,12 @@ const ROWS = [
     org: "Delta Sigma Pi, professional business fraternity",
     detail: "Elected to lead onboarding and member education.",
   },
+  {
+    big: "$3K+",
+    small: "sponsorships",
+    org: "Phi Delta Theta, Alumni Relations Chairman",
+    detail: "Homecoming alumni reunion: 300+ expected, $8.4K budget, 6 vendors.",
+  },
 ];
 
 export function Leadership() {
@@ -36,7 +42,7 @@ export function Leadership() {
     >
       <Reveal>
         <div className="flex items-baseline justify-between">
-          <h2 className="text-[clamp(2rem,4vw,3rem)] font-bold text-ink">Selected for</h2>
+          <h2 className="text-[clamp(2rem,4vw,3rem)] font-bold text-ink">Campus leadership</h2>
           <span className="tnum text-[13px] text-ink-2">Fall 2026</span>
         </div>
       </Reveal>
