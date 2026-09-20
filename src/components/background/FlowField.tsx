@@ -130,7 +130,7 @@ const VERT = /* glsl */ `
     // the river is dimmed behind copy. Adding light on top of an already dim
     // river is exactly how background spectacle starts eating body text, so
     // the highlights only exist where the river is allowed to be the subject.
-    float tw = 1.0 + aEmber * 0.35 * uLift * sin(uTime * (1.4 + 2.6 * aSeed2) + aSeed * 50.0);
+    float tw = 1.0 + aEmber * 0.22 * uLift * sin(uTime * (1.4 + 2.6 * aSeed2) + aSeed * 50.0);
     float glint = smoothstep(0.55, 1.0, crest) * (0.3 + 0.9 * aEmber) * uLift;
     float core = (1.0 - smoothstep(0.0, 0.9, rad)) * uLift;
 
@@ -140,8 +140,12 @@ const VERT = /* glsl */ `
     float front = smoothstep(0.09, 0.0, abs(t - uIgnite)) * (1.0 - smoothstep(0.75, 1.0, uIgnite));
     float ends = smoothstep(0.0, 0.05, t) * (1.0 - smoothstep(0.95, 1.0, t));
 
-    gl_PointSize = aSize * (26.0 / dist) * (1.0 - 0.55 * uDrink) * (1.0 + 0.45 * glint + 0.7 * front);
-    vAlpha = aAlpha * ignite * ends * tw * (1.0 + 0.55 * glint + 0.5 * core + 2.2 * front);
+    // Brightness dials, deliberately modest. These stack multiplicatively on
+    // an additively-blended field that already sums thousands of overlapping
+    // sprites, so each one buys far more glow than its number suggests: the
+    // first pass ran 2.2 on the front and blew the hero out.
+    gl_PointSize = aSize * (26.0 / dist) * (1.0 - 0.55 * uDrink) * (1.0 + 0.3 * glint + 0.3 * front);
+    vAlpha = aAlpha * ignite * ends * tw * (1.0 + 0.28 * glint + 0.18 * core + 0.7 * front);
   }
 `;
 
@@ -284,8 +288,8 @@ export function FlowField() {
     // the river stays clean instead of smearing into haze.
     const bloom = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth / bloomDiv, window.innerHeight / bloomDiv),
-      1.15,
-      0.78,
+      0.9,
+      0.7,
       0.22,
     );
     composer.addPass(bloom);
@@ -418,7 +422,7 @@ export function FlowField() {
       // at exactly the brightness it had before any of this was added.
       const lift = Math.max(0, (state.a - 0.2) / 0.8);
       u.uLift.value = lift;
-      u.uSurge.value = surge * lift * 0.64;
+      u.uSurge.value = surge * lift * 0.3;
 
       // River re-routes toward the live model's curve.
       const pts = u.uPts.value as THREE.Vector3[];
