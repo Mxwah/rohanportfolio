@@ -39,10 +39,14 @@ const VERT = /* glsl */ `
   attribute float aSeed2;
   attribute float aSize;
   attribute float aAlpha;
+  attribute float aTrail;
+  attribute float aEmber;
   uniform float uTime;
   uniform float uIgnite;
   uniform float uYOff;
   uniform float uDrink;
+  uniform float uWake;
+  uniform float uLift;
   uniform vec3 uMouse;
   uniform vec3 uPts[5];
   varying float vAlpha;
@@ -68,14 +72,19 @@ const VERT = /* glsl */ `
 
   void main() {
     float speed = 0.018 + 0.045 * aSeed2;
-    float t = fract(aSeed + uTime * speed);
+    // Trail copies share their head's seed and ride a beat behind it, so an
+    // ember reads as a comet instead of a dot. Still stateless: only t shifts.
+    float t = fract(aSeed + uTime * speed - aTrail * 0.009);
     vec3 pos = splineAt(t);
 
     // Living meander: surges that travel downstream, so the course always
     // reads as a river and never settles into a straight channel. The FCF
-    // curve stays the macro trend; these waves are the water.
-    pos.y += sin(t * 9.0 - uTime * 0.35) * 0.55;
-    pos.z += cos(t * 6.0 + uTime * 0.22) * 0.8;
+    // curve stays the macro trend; these waves are the water. Under the
+    // meander runs a much slower, wider swell: the long breath that makes the
+    // course read as big water rather than a ribbon.
+    float crest = sin(t * 9.0 - uTime * 0.35);
+    pos.y += crest * 0.55 + sin(t * 2.1 - uTime * 0.11) * 0.85;
+    pos.z += cos(t * 6.0 + uTime * 0.22) * 0.8 + sin(t * 1.7 + uTime * 0.09) * 0.7;
 
     vec3 tang = normalize(splineAt(min(t + 0.02, 1.0)) - splineAt(max(t - 0.02, 0.0)) + vec3(1e-4));
     vec3 side = normalize(cross(tang, vec3(0.0, 0.0, 1.0)));
@@ -92,10 +101,15 @@ const VERT = /* glsl */ `
 
     vec3 wp = pos + off;
 
-    // The cursor as a physical presence: burst away, heal behind.
+    // The cursor as a physical presence: burst away, heal behind, and leave a
+    // wake of rings that travel outward and downstream, the way a hand pulled
+    // through water throws rings that the current carries off.
     vec3 d = wp - uMouse;
-    float md = exp(-dot(d, d) * 0.3);
-    wp += normalize(d + vec3(1e-3)) * md * 1.8;
+    float dd = dot(d, d);
+    vec3 dn = normalize(d + vec3(1e-3));
+    wp += dn * exp(-dd * 0.3) * 1.8;
+    float downstream = smoothstep(-0.6, 0.6, dot(dn, tang));
+    wp += upv * sin(sqrt(dd) * 2.6 - uTime * 4.5) * exp(-dd * 0.05) * downstream * uWake;
 
     wp.y += uYOff; // per-act mood: the river sinks low under later acts
 
@@ -107,23 +121,39 @@ const VERT = /* glsl */ `
     vec4 mv = modelViewMatrix * vec4(wp, 1.0);
     gl_Position = projectionMatrix * mv;
     float dist = max(-mv.z, 0.1);
-    gl_PointSize = aSize * (26.0 / dist) * (1.0 - 0.55 * uDrink);
 
-    // Ignition front sweeps downstream; stream ends stay feathered.
+    // Light on water. Embers breathe at their own rate, every particle flares
+    // as the crest it rides turns into the light, and the thread running down
+    // the middle of the channel stays the brightest part of the current.
+    //
+    // All of it is gated by uLift, which falls to zero under the acts where
+    // the river is dimmed behind copy. Adding light on top of an already dim
+    // river is exactly how background spectacle starts eating body text, so
+    // the highlights only exist where the river is allowed to be the subject.
+    float tw = 1.0 + aEmber * 0.35 * uLift * sin(uTime * (1.4 + 2.6 * aSeed2) + aSeed * 50.0);
+    float glint = smoothstep(0.55, 1.0, crest) * (0.3 + 0.9 * aEmber) * uLift;
+    float core = (1.0 - smoothstep(0.0, 0.9, rad)) * uLift;
+
+    // Ignition sweeps downstream behind a bright leading edge; stream ends
+    // stay feathered. The edge only exists while the river is lighting up.
     float ignite = smoothstep(t, t + 0.06, uIgnite);
+    float front = smoothstep(0.09, 0.0, abs(t - uIgnite)) * (1.0 - smoothstep(0.75, 1.0, uIgnite));
     float ends = smoothstep(0.0, 0.05, t) * (1.0 - smoothstep(0.95, 1.0, t));
-    vAlpha = aAlpha * ignite * ends;
+
+    gl_PointSize = aSize * (26.0 / dist) * (1.0 - 0.55 * uDrink) * (1.0 + 0.45 * glint + 0.7 * front);
+    vAlpha = aAlpha * ignite * ends * tw * (1.0 + 0.55 * glint + 0.5 * core + 2.2 * front);
   }
 `;
 
 const FRAG = /* glsl */ `
   precision mediump float;
   uniform float uGlobal;
+  uniform float uSurge;
   varying float vAlpha;
 
   void main() {
     vec2 c = gl_PointCoord - 0.5;
-    float a = exp(-dot(c, c) * 14.0) * vAlpha * uGlobal;
+    float a = exp(-dot(c, c) * 14.0) * vAlpha * uGlobal * (1.0 + uSurge);
     gl_FragColor = vec4(vec3(1.0), a);
   }
 `;
@@ -174,12 +204,37 @@ export function FlowField() {
     const seeds2 = new Float32Array(count);
     const sizes = new Float32Array(count);
     const alphas = new Float32Array(count);
-    for (let i = 0; i < count; i++) {
-      seeds[i] = Math.random();
-      seeds2[i] = Math.random();
-      const ember = Math.random() < 0.025;
-      sizes[i] = ember ? 3.2 + Math.random() * 1.8 : 0.9 + Math.random() * 1.1;
-      alphas[i] = ember ? 0.7 + Math.random() * 0.3 : 0.1 + Math.random() * 0.2;
+    const trails = new Float32Array(count);
+    const embers = new Float32Array(count);
+    // Embers are emitted as short strands: a head plus TRAIL copies sharing
+    // its seed, which the shader walks back along the course to draw a comet
+    // tail. Trails come out of the same particle budget rather than adding to
+    // it, so the strand rate is tuned to keep ember HEADS at the ~2.5% the
+    // scene had before (p / (1 + TRAIL * p) = 0.025).
+    const TRAIL = isMobile ? 2 : 3;
+    for (let i = 0; i < count; ) {
+      const seed = Math.random();
+      const seed2 = Math.random();
+      if (Math.random() < 0.028 && i + TRAIL < count) {
+        const size = 3.2 + Math.random() * 1.8;
+        const alpha = 0.7 + Math.random() * 0.3;
+        for (let k = 0; k <= TRAIL; k++) {
+          const fade = 1 - k / (TRAIL + 1);
+          seeds[i + k] = seed;
+          seeds2[i + k] = seed2;
+          embers[i + k] = 1;
+          trails[i + k] = k;
+          sizes[i + k] = size * (0.35 + 0.65 * fade);
+          alphas[i + k] = alpha * fade * fade;
+        }
+        i += TRAIL + 1;
+      } else {
+        seeds[i] = seed;
+        seeds2[i] = seed2;
+        sizes[i] = 0.9 + Math.random() * 1.1;
+        alphas[i] = 0.1 + Math.random() * 0.2;
+        i += 1;
+      }
     }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -187,6 +242,8 @@ export function FlowField() {
     geometry.setAttribute("aSeed2", new THREE.BufferAttribute(seeds2, 1));
     geometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
     geometry.setAttribute("aAlpha", new THREE.BufferAttribute(alphas, 1));
+    geometry.setAttribute("aTrail", new THREE.BufferAttribute(trails, 1));
+    geometry.setAttribute("aEmber", new THREE.BufferAttribute(embers, 1));
     geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, -4), 40); // never frustum-culled
 
     const splinePts = SPLINE_X.map((x, i) => new THREE.Vector3(x, targetY(i), SPLINE_Z[i]));
@@ -199,6 +256,11 @@ export function FlowField() {
         uGlobal: { value: 1 },
         uYOff: { value: 0 },
         uDrink: { value: 0 },
+        uSurge: { value: 0 },
+        uLift: { value: 1 },
+        // Wake amplitude. Vanishes on its own far from the cursor (the
+        // exp falloff), so it costs nothing before the first mousemove.
+        uWake: { value: isMobile ? 0 : 0.45 },
         uMouse: { value: new THREE.Vector3(0, 0, -60) },
         uPts: { value: splinePts },
       },
@@ -217,11 +279,14 @@ export function FlowField() {
     composer.setPixelRatio(dpr);
     composer.setSize(window.innerWidth, window.innerHeight);
     composer.addPass(new RenderPass(scene, camera));
+    // Threshold up and strength up together: only the embers and the dense
+    // core thread clear the cut, so highlights bloom richly while the body of
+    // the river stays clean instead of smearing into haze.
     const bloom = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth / bloomDiv, window.innerHeight / bloomDiv),
-      0.9,
-      0.65,
-      0.12,
+      1.15,
+      0.78,
+      0.22,
     );
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
@@ -262,10 +327,16 @@ export function FlowField() {
     const state = { a: 1, y: 0, s: 1 };
     let drinkTarget = 0;
     let scanCounter = 0;
+    let scrollDepth = 0;
+    let currentMode = "";
+    let surge = 0;
 
     const scanMode = () => {
       const vh = window.innerHeight;
       const mid = vh * 0.5;
+      // Depth of field: the camera eases back as the page goes deeper, so the
+      // river opens out instead of staying the same ribbon at every scroll.
+      scrollDepth = Math.min(1, window.scrollY / Math.max(1, vh * 5));
       for (const m of MODES) {
         let el = sectionEls.get(m.id);
         if (!el) {
@@ -279,6 +350,12 @@ export function FlowField() {
           target.a = m.a;
           target.y = m.y;
           target.s = m.s;
+          // Crossing into a new act sends a surge of light down the current.
+          // The very first scan only records where we started.
+          if (m.id !== currentMode) {
+            if (currentMode !== "") surge = 1;
+            currentMode = m.id;
+          }
           break;
         }
       }
@@ -329,8 +406,19 @@ export function FlowField() {
 
       flowTime += dt * state.s;
       u.uTime.value = flowTime;
-      const ig = Math.min(1, Math.max(0, (elapsed - 0.35) / 2.2));
+      const ig = Math.min(1, Math.max(0, (elapsed - 0.35) / 2.8));
       u.uIgnite.value = 1 - Math.pow(1 - ig, 3);
+
+      // The surge decays on a half-life, and is scaled by how lit the act
+      // already is: full effect in the hero, ~nothing under the acts where
+      // the river is dimmed to keep numbers and copy legible.
+      surge *= Math.pow(0.5, dt / 0.4);
+      // One curve drives both: 0 wherever the river is dimmed behind copy,
+      // 1 where it is the subject. Under the text acts this leaves the river
+      // at exactly the brightness it had before any of this was added.
+      const lift = Math.max(0, (state.a - 0.2) / 0.8);
+      u.uLift.value = lift;
+      u.uSurge.value = surge * lift * 0.64;
 
       // River re-routes toward the live model's curve.
       const pts = u.uPts.value as THREE.Vector3[];
@@ -347,9 +435,10 @@ export function FlowField() {
       }
       (u.uMouse.value as THREE.Vector3).lerp(mouseWorld, 0.12);
 
-      // Slow camera drift plus cursor lean.
+      // Slow camera drift, cursor lean, and the scroll-driven pull-back.
       camera.position.x += (mouseNdc.x * 0.7 - camera.position.x) * 0.02;
-      camera.position.y += (0.4 + mouseNdc.y * 0.3 - camera.position.y) * 0.02;
+      camera.position.y += (0.4 + mouseNdc.y * 0.3 + scrollDepth * 0.9 - camera.position.y) * 0.02;
+      camera.position.z += (10 + scrollDepth * 2.2 - camera.position.z) * 0.02;
       camera.lookAt(0, 0, -3);
 
       composer.render();
