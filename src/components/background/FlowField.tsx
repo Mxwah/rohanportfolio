@@ -144,8 +144,8 @@ const VERT = /* glsl */ `
     // an additively-blended field that already sums thousands of overlapping
     // sprites, so each one buys far more glow than its number suggests: the
     // first pass ran 2.2 on the front and blew the hero out.
-    gl_PointSize = aSize * (26.0 / dist) * (1.0 - 0.55 * uDrink) * (1.0 + 0.3 * glint + 0.3 * front);
-    vAlpha = aAlpha * ignite * ends * tw * (1.0 + 0.28 * glint + 0.18 * core + 0.7 * front);
+    gl_PointSize = aSize * (26.0 / dist) * (1.0 - 0.55 * uDrink) * (1.0 + 0.3 * glint + 0.08 * front);
+    vAlpha = aAlpha * ignite * ends * tw * (1.0 + 0.28 * glint + 0.18 * core + 0.15 * front);
   }
 `;
 
