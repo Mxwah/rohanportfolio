@@ -25,15 +25,20 @@ export interface Panel {
   suffix?: string;
   comma?: boolean;
   decimals?: number;
+  // Set the value as-is instead of counting up. For dates: a year counting up
+  // from zero reads as a glitch, not a result.
+  static?: boolean;
   context: string;
   placeholder?: boolean;
 }
 
 // Real numbers from the August 2026 resume, concised to the critical fact.
+// Timken leads as the accepted offer (Summer 2027), ahead of the resume roles.
 // Education lives in its own section (src/components/sections/Education.tsx).
 // One panel per role: a recruiter's scroll budget is the scarcest resource on
 // the page, so each org gets one number and one clause, never a bullet dump.
 const PANELS: Panel[] = [
+  { org: "Timken", role: "Incoming Finance & Accounting Intern, Summer 2027", value: 2027, static: true, context: "Offer accepted. Finance and accounting at a $4.6B global maker of engineered bearings and power transmission products." },
   { org: "Fleet Team", role: "Account Management Intern, May–Aug 2026", prefix: "$", value: 61, suffix: "K", context: "in client savings, plus 2,200 accounts mapped into 3 automated tools, cutting mapping time from 2 hours to 20 seconds." },
   { org: "Mont Granite", role: "Summer Intern, 2023 and 2025", value: 80, suffix: "%", context: "support-delay reduction from Synthesis GPT, an internal AI assistant I built, used by 10+ staff." },
   { org: "Speranza Resources", role: "Procurement Intern, 6-day Brazil buying trip", value: 52, suffix: "%", context: "bundle price reduction supported in factory negotiations, $13.50 down to $6.50 per square foot." },
@@ -104,7 +109,11 @@ export function PanelSpread({ p, active }: { p: Panel; active: boolean }) {
             {p.prefix ? (
               <span className="inline-block align-top text-[0.42em] leading-none text-ink-2">{p.prefix}</span>
             ) : null}
-            <Counter value={p.value} comma={p.comma} decimals={p.decimals} active={active} />
+            {p.static ? (
+              <span>{p.value}</span>
+            ) : (
+              <Counter value={p.value} comma={p.comma} decimals={p.decimals} active={active} />
+            )}
             {p.suffix ? <span className="text-[0.42em] text-ink-2">{p.suffix}</span> : null}
           </div>
           <p className="max-w-[300px] pb-2 text-[15px] leading-relaxed text-ink-2 sm:text-right">

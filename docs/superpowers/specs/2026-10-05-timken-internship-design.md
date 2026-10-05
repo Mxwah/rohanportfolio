@@ -1,7 +1,7 @@
 # Timken internship announcement — design
 
 Date: 2026-10-05
-Status: approved
+Status: implemented (revised after live review)
 
 ## Goal
 
@@ -13,44 +13,52 @@ no badges).
 
 ## Changes
 
-### 1. Experience: Timken lead spread
+### 1. Experience: Timken lead spread — `src/acts/ExperienceAct.tsx`
 
-Add one entry at the top of `PANELS` in `src/acts/ExperienceAct.tsx`:
+First entry in `PANELS`:
 
 ```ts
-{ org: "Timken", role: "Incoming Finance & Accounting Intern", prefix: "Summer ", value: 2027, context: "Offer accepted. Finance and accounting at a $4.6B global maker of engineered bearings and power transmission." },
+{ org: "Timken", role: "Incoming Finance & Accounting Intern, Summer 2027", value: 2027, static: true, context: "Offer accepted. Finance and accounting at a $4.6B global maker of engineered bearings and power transmission products." },
 ```
 
-- Renders through the existing `PanelSpread`; no layout code changes.
-- `prefix` renders at 0.42em in `--text-secondary`, top-aligned, as for `$`.
-  The trailing space keeps "Summer" off the numerals.
-- `value: 2027` without `comma`, so it counts up to `2027`, not `2,027`.
+- New optional `Panel.static` flag: `PanelSpread` renders the value as-is
+  instead of through `Counter`. A year counting up from zero reads as a glitch.
+- "Summer" lives in the role label, not as a display-scale prefix: at 0.42em a
+  whole word competes with the org name and its trailing space collapses
+  against the numerals ("Summer2027").
 - Pinned scroll length grows by one panel automatically
   (`PANELS.length * 0.85 * innerHeight`); the progress rail gains a fifth tick.
-- Mobile / reduced-motion: it becomes the first item in the static list.
+- Mobile / reduced-motion: first item in the static list.
 - Revenue figure: Timken 2025 net sales $4,581.8M (Q4/FY2025 release,
   2026-02-04), rounded to $4.6B.
-- Update the comment above `PANELS` that says the numbers come from the August
-  2026 resume, so it notes that the Timken entry comes from the accepted offer.
 
-### 2. Hero copy — `src/components/hero/DcfHero.tsx`
+### 2. Hero — `src/components/hero/DcfHero.tsx`
 
-> Sophomore at the University of Akron, incoming Finance & Accounting intern at
-> Timken. The current below is a live valuation: drag the drivers and it
-> re-routes.
+Copy, two short lines, `text-balance` so phones don't orphan "at Timken.":
+
+> Incoming Finance & Accounting intern at Timken.
+> Sophomore at the University of Akron.
+
+The "the current below is a live valuation: drag the drivers" sentence is cut;
+the sliders directly below are self-evident. A feathered radial scrim
+(site bg color) now sits under the name and intro so the river's crest can't
+wash them out.
 
 ### 3. Contact — `src/components/sections/Contact.tsx`
 
 - Headline: "Headed to Timken, summer 2027."
-- Subcopy, resume button, email, LinkedIn unchanged.
+- Subcopy: "Studying financial management and economics. This site is my
+  portfolio." (the hero already says sophomore at Akron).
+- Full-bleed feathered radial scrim under the text (the river runs at 0.6
+  alpha here). It spans `w-screen`, not the 1240px shell: bounded by the shell
+  it was still dark at the shell edge and cut a hard seam on wide screens.
+  `body` clips `overflow-x`, so the full-bleed layer adds no horizontal scroll.
 
 ### 4. Link-unfurl description — `index.html`
 
-In `og:description` (the only tag carrying the old string), replace
-"University of Akron sophomore seeking 2027 internships." with
-"University of Akron sophomore, incoming Finance &amp; Accounting intern at
-Timken." (`&amp;` because it sits in an HTML attribute.) `meta name="description"`
-has no internship line and stays unchanged.
+`og:description` now ends "University of Akron sophomore, incoming Finance
+&amp; Accounting intern at Timken." `meta name="description"` had no
+internship line and is unchanged.
 
 ## Out of scope
 
@@ -61,9 +69,9 @@ has no internship line and stays unchanged.
 ## Verification
 
 - `npm run build` passes (tsc + vite).
-- Local preview, desktop: scroll the Experience act; Timken is the first
-  spread, counts up to 2027, "Summer" prefix sits correctly, five rail ticks.
-- Local preview, mobile width (375px): Timken is first in the static list,
-  no overflow from the 2027 numeral.
+- Desktop: Timken is the first Experience spread, "2027" set static, label
+  reads "…Intern, Summer 2027", five rail ticks.
+- 375px: hero intro wraps without an orphan; no horizontal scroll.
+- Wide (1700px): no seam at the Contact section's shell edge.
 - `grep -ri "seeking\|looking for 2027"` in `src/` and `index.html` returns
   nothing.

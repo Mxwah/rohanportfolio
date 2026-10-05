@@ -60,6 +60,17 @@ export function DcfHero() {
         className="pointer-events-none absolute inset-x-0 top-0 h-[38%]"
         style={{ background: "linear-gradient(to bottom, rgba(11,11,13,0.85) 20%, rgba(11,11,13,0))" }}
       />
+      {/* The band above fades out right where the intro line sits, and the
+          river's crest can rise into it on the right. A feathered ellipse
+          seated on the name and intro keeps them readable at any crest height. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 42% at 24% 24%, rgba(11,11,13,0.9) 0%, rgba(11,11,13,0.55) 55%, rgba(11,11,13,0) 85%)",
+        }}
+      />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-0 h-[46%]"
@@ -71,9 +82,10 @@ export function DcfHero() {
         <h1 className="text-[clamp(2.8rem,8vw,5.5rem)] font-extrabold leading-[0.98] text-ink">
           Rohan Dhruv
         </h1>
-        <p className="mt-5 max-w-md text-lg text-ink-2">
-          Sophomore at the University of Akron, seeking 2027 internships. The current below is a
-          live valuation: drag the drivers and it re-routes.
+        <p className="mt-5 max-w-md text-balance text-lg text-ink-2">
+          Incoming Finance &amp; Accounting intern at Timken.
+          <br />
+          Sophomore at the University of Akron.
         </p>
       </div>
 

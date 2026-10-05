@@ -9,13 +9,25 @@ const LINKEDIN = "https://www.linkedin.com/in/rohandhruv";
 export function Contact() {
   return (
     <Section id="contact" className="border-t border-line">
-      <Reveal>
+      {/* Legibility scrim: the river comes back up to 0.6 alpha here and its
+          crest runs straight through the subcopy, so seat a feathered dark
+          ellipse under the text, same as the hero and experience spreads.
+          Full-bleed (body clips overflow-x): bounded by the 1240px shell, the
+          gradient was still dark at the shell's edge and cut a hard seam. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-1/2 w-screen -translate-x-1/2"
+        style={{
+          background:
+            "radial-gradient(ellipse 50% 70% at 42% 50%, rgba(11,11,13,0.92) 0%, rgba(11,11,13,0.6) 50%, rgba(11,11,13,0) 85%)",
+        }}
+      />
+      <Reveal className="relative">
         <h2 className="max-w-3xl text-[clamp(2rem,5vw,3.5rem)] font-bold leading-[1.05] text-ink">
-          Looking for 2027 internships.
+          Headed to Timken, summer 2027.
         </h2>
         <p className="mt-5 max-w-xl text-lg text-ink-2">
-          Sophomore at the University of Akron studying financial management and economics. This site
-          is my portfolio.
+          Studying financial management and economics. This site is my portfolio.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5">
