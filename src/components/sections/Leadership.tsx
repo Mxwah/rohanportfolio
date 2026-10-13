@@ -23,13 +23,13 @@ const ROWS = [
     big: "VP",
     small: "Pledge Education",
     org: "Delta Sigma Pi, professional business fraternity",
-    detail: "Elected to lead onboarding and member education.",
+    detail: "Elected to lead onboarding and education for 20 new members.",
   },
   {
-    big: "$3K+",
+    big: "$3.2K+",
     small: "sponsorships",
     org: "Phi Delta Theta, Alumni Relations Chairman",
-    detail: "Homecoming alumni reunion: 300+ expected, $8.4K budget, 6 vendors.",
+    detail: "Homecoming alumni reunion: 300+ attendees, $8.4K budget, 6 vendors.",
   },
 ];
 
